@@ -1,17 +1,20 @@
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-
 import searchImages from './js/pixabay-api.js';
-import renderImages from './js/render-functions.js';
+import {
+  renderImages,
+  clearGallery,
+  showLoader,
+  hideLoader,
+  showBtn,
+  hideBtn,
+} from './js/render-functions.js';
 
 const input = document.querySelector('.input');
-const gallery = document.querySelector('.gallery');
 const form = document.querySelector('.form');
-const loader = document.querySelector('.loader');
 const loadMoreBtn = document.querySelector('.load-more-btn');
+const gallery = document.querySelector('.gallery');
 
 let currentPage = 1;
 let search = '';
@@ -20,7 +23,8 @@ form.addEventListener('submit', async event => {
   event.preventDefault();
 
   search = input.value.trim();
-  loadMoreBtn.classList.add('is-hidden');
+  // loadMoreBtn.classList.add('is-hidden');
+  hideBtn();
   currentPage = 1;
   if (search === '') {
     iziToast.show({
@@ -32,8 +36,9 @@ form.addEventListener('submit', async event => {
     });
     return;
   }
-  loader.classList.remove('is-hidden');
-  gallery.innerHTML = '';
+
+  clearGallery();
+  showLoader();
   // data.hits  - зображення
 
   try {
@@ -56,7 +61,8 @@ form.addEventListener('submit', async event => {
     form.reset();
 
     if (data.totalHits > 15) {
-      loadMoreBtn.classList.remove('is-hidden');
+      // loadMoreBtn.classList.remove('is-hidden');
+      showBtn();
     }
   } catch (error) {
     iziToast.show({
@@ -67,7 +73,8 @@ form.addEventListener('submit', async event => {
       position: 'topRight',
     });
   } finally {
-    loader.classList.add('is-hidden');
+    // loader.classList.add('is-hidden');
+    hideLoader();
   }
 });
 
@@ -75,7 +82,8 @@ loadMoreBtn.addEventListener('click', onLoadMore);
 
 async function onLoadMore() {
   currentPage++;
-  loader.classList.remove('is-hidden');
+  // loader.classList.remove('is-hidden');
+  showLoader();
 
   try {
     const data = await searchImages(search, currentPage);
@@ -86,7 +94,8 @@ async function onLoadMore() {
     const maxPages = Math.ceil(data.totalHits / 15);
 
     if (currentPage === maxPages) {
-      loadMoreBtn.classList.add('is-hidden');
+      // loadMoreBtn.classList.add('is-hidden');
+      hideBtn();
 
       iziToast.show({
         title: '❌',
@@ -105,7 +114,8 @@ async function onLoadMore() {
       position: 'topRight',
     });
   } finally {
-    loader.classList.add('is-hidden');
+    // loader.classList.add('is-hidden');
+    hideLoader();
   }
 }
 
